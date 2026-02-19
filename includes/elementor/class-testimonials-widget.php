@@ -57,6 +57,7 @@ class OTW_Testimonials_Elementor_Widget extends \Elementor\Widget_Base {
                 'google'     => __( 'Google', 'otw-testimonials' ),
                 'facebook'   => __( 'Facebook', 'otw-testimonials' ),
                 'trustpilot' => __( 'Trustpilot', 'otw-testimonials' ),
+                'blank'      => __( 'Other (no platform)', 'otw-testimonials' ),
             ),
         ) );
 

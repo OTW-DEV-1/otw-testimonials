@@ -220,6 +220,23 @@
     gap: 4px;
 }
 
+/* Blank / Other Card
+   ========================================================================== */
+.otw-card--blank {
+    border: 1px solid #e8e8e8;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.otw-card__avatar--blank {
+    background: #9e9e9e;
+}
+
+.otw-card__quote-icon {
+    flex-shrink: 0;
+    line-height: 1;
+    opacity: 0.5;
+}
+
 /* Google Card
    ========================================================================== */
 .otw-card--google {

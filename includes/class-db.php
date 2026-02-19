@@ -234,7 +234,7 @@ class OTW_Testimonials_DB {
             $sanitized['rating'] = max( 1, min( 5, absint( $data['rating'] ) ) );
         }
         if ( isset( $data['platform'] ) ) {
-            $allowed = array( 'google', 'facebook', 'trustpilot' );
+            $allowed = array( 'google', 'facebook', 'trustpilot', 'blank' );
             $sanitized['platform'] = in_array( $data['platform'], $allowed, true ) ? $data['platform'] : 'google';
         }
         if ( isset( $data['sort_order'] ) ) {

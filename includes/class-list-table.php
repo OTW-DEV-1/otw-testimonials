@@ -129,6 +129,7 @@ class OTW_Testimonials_List_Table extends WP_List_Table {
             'google'     => '🔍 Google',
             'facebook'   => '📘 Facebook',
             'trustpilot' => '⭐ Trustpilot',
+            'blank'      => '💬 Other',
         );
         return esc_html( $platforms[ $item->platform ] ?? $item->platform );
     }

@@ -241,6 +241,7 @@ class OTW_Testimonials_Admin {
                                 <option value="google" <?php selected( $platform, 'google' ); ?>><?php esc_html_e( 'Google', 'otw-testimonials' ); ?></option>
                                 <option value="facebook" <?php selected( $platform, 'facebook' ); ?>><?php esc_html_e( 'Facebook', 'otw-testimonials' ); ?></option>
                                 <option value="trustpilot" <?php selected( $platform, 'trustpilot' ); ?>><?php esc_html_e( 'Trustpilot', 'otw-testimonials' ); ?></option>
+                                <option value="blank" <?php selected( $platform, 'blank' ); ?>><?php esc_html_e( 'Other (no platform)', 'otw-testimonials' ); ?></option>
                             </select>
                         </td>
                     </tr>
