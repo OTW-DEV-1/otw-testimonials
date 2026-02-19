@@ -21,8 +21,8 @@ class OTW_Testimonials_List_Table extends WP_List_Table {
         return array(
             'cb'          => '<input type="checkbox" />',
             'image'       => __( 'Image', 'otw-testimonials' ),
-            'title'       => __( 'Title', 'otw-testimonials' ),
-            'author_name' => __( 'Author', 'otw-testimonials' ),
+            'title'       => __( 'Author', 'otw-testimonials' ),
+            'author_name' => __( 'Position', 'otw-testimonials' ),
             'rating'      => __( 'Rating', 'otw-testimonials' ),
             'platform'    => __( 'Platform', 'otw-testimonials' ),
             'status'      => __( 'Status', 'otw-testimonials' ),

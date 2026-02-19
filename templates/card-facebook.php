@@ -15,14 +15,17 @@ $recommends = $testimonial->rating >= 4;
     <div class="otw-card__header">
         <div class="otw-card__author-info">
             <?php if ( $image_url ) : ?>
-                <img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $testimonial->author_name ); ?>" class="otw-card__avatar">
+                <img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $testimonial->title ); ?>" class="otw-card__avatar">
             <?php else : ?>
                 <div class="otw-card__avatar otw-card__avatar--placeholder otw-card__avatar--fb">
-                    <?php echo esc_html( mb_strtoupper( mb_substr( $testimonial->author_name, 0, 1 ) ) ); ?>
+                    <?php echo esc_html( mb_strtoupper( mb_substr( $testimonial->title, 0, 1 ) ) ); ?>
                 </div>
             <?php endif; ?>
             <div class="otw-card__author-meta">
-                <span class="otw-card__author-name"><?php echo esc_html( $testimonial->author_name ); ?></span>
+                <span class="otw-card__author-name"><?php echo esc_html( $testimonial->title ); ?></span>
+                <?php if ( ! empty( $testimonial->author_name ) ) : ?>
+                    <span class="otw-card__position"><?php echo esc_html( $testimonial->author_name ); ?></span>
+                <?php endif; ?>
                 <span class="otw-card__recommendation">
                     <?php if ( $recommends ) : ?>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2" style="vertical-align:middle;">
@@ -50,12 +53,8 @@ $recommends = $testimonial->rating >= 4;
         <?php endfor; ?>
     </div>
 
-    <?php if ( ! empty( $testimonial->title ) ) : ?>
-        <h4 class="otw-card__title"><?php echo esc_html( $testimonial->title ); ?></h4>
-    <?php endif; ?>
-
     <div class="otw-card__content">
-        <?php echo wp_kses_post( $testimonial->description ); ?>
+        <div class="otw-content-body"><?php echo wp_kses_post( $testimonial->description ); ?></div>
     </div>
 
     <div class="otw-card__footer">

@@ -168,15 +168,11 @@ class OTW_Testimonials_DB {
                 ),
                 'author'       => array(
                     '@type' => 'Person',
-                    'name'  => $t->author_name,
+                    'name'  => $t->title,
                 ),
                 'reviewBody'    => wp_strip_all_tags( $t->description ),
                 'datePublished' => date( 'Y-m-d', strtotime( $t->created_at ) ),
             );
-
-            if ( ! empty( $t->title ) ) {
-                $review['name'] = $t->title;
-            }
 
             $reviews[] = $review;
         }

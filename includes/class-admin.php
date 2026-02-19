@@ -171,7 +171,7 @@ class OTW_Testimonials_Admin {
                 <table class="form-table">
                     <tr>
                         <th scope="row">
-                            <label for="otw_title"><?php esc_html_e( 'Title', 'otw-testimonials' ); ?></label>
+                            <label for="otw_title"><?php esc_html_e( 'Author Name', 'otw-testimonials' ); ?></label>
                         </th>
                         <td>
                             <input type="text" id="otw_title" name="otw_title" value="<?php echo esc_attr( $title ); ?>" class="regular-text" required>
@@ -211,10 +211,11 @@ class OTW_Testimonials_Admin {
                     </tr>
                     <tr>
                         <th scope="row">
-                            <label for="otw_author_name"><?php esc_html_e( 'Author Name', 'otw-testimonials' ); ?></label>
+                            <label for="otw_author_name"><?php esc_html_e( 'Position', 'otw-testimonials' ); ?></label>
                         </th>
                         <td>
-                            <input type="text" id="otw_author_name" name="otw_author_name" value="<?php echo esc_attr( $author_name ); ?>" class="regular-text" required>
+                            <input type="text" id="otw_author_name" name="otw_author_name" value="<?php echo esc_attr( $author_name ); ?>" class="regular-text">
+                            <p class="description"><?php esc_html_e( 'Optional. e.g. CEO at Acme Corp', 'otw-testimonials' ); ?></p>
                         </td>
                     </tr>
                     <tr>
