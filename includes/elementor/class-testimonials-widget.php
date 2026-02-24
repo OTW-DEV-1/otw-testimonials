@@ -26,11 +26,11 @@ class OTW_Testimonials_Elementor_Widget extends \Elementor\Widget_Base {
     }
 
     public function get_style_depends() {
-        return array( 'otw-testimonials-frontend' );
+        return array( 'swiper', 'otw-testimonials-frontend' );
     }
 
     public function get_script_depends() {
-        return array( 'otw-testimonials-frontend', 'swiper' );
+        return array( 'swiper', 'otw-testimonials-frontend' );
     }
 
     protected function register_controls() {
@@ -475,28 +475,13 @@ class OTW_Testimonials_Elementor_Widget extends \Elementor\Widget_Base {
     }
 
     private function enqueue_frontend_assets( $layout ) {
-        wp_enqueue_style(
-            'otw-testimonials-frontend',
-            OTW_TESTIMONIALS_URL . 'assets/css/frontend.css',
-            array(),
-            filemtime( OTW_TESTIMONIALS_DIR . 'assets/css/frontend.css' )
-        );
+        wp_enqueue_style( 'otw-testimonials-frontend' );
 
         if ( $layout === 'carousel' ) {
-            if ( wp_script_is( 'swiper', 'registered' ) ) {
-                wp_enqueue_script( 'swiper' );
-            } else {
-                wp_enqueue_style( 'swiper', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css', array(), '11.0.0' );
-                wp_enqueue_script( 'swiper', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js', array(), '11.0.0', true );
-            }
+            wp_enqueue_style( 'swiper' );
+            wp_enqueue_script( 'swiper' );
         }
 
-        wp_enqueue_script(
-            'otw-testimonials-frontend',
-            OTW_TESTIMONIALS_URL . 'assets/js/frontend.js',
-            $layout === 'carousel' ? array( 'swiper' ) : array(),
-            filemtime( OTW_TESTIMONIALS_DIR . 'assets/js/frontend.js' ),
-            true
-        );
+        wp_enqueue_script( 'otw-testimonials-frontend' );
     }
 }

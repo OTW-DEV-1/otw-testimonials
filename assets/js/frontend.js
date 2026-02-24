@@ -148,7 +148,7 @@
         init();
     }
 
-    if (window.elementorFrontend) {
+    if (window.elementorFrontend && window.elementorFrontend.hooks) {
         window.elementorFrontend.hooks.addAction('frontend/element_ready/otw-testimonials.default', function () {
             init();
         });

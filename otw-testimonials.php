@@ -56,6 +56,36 @@ final class OTW_Testimonials {
         OTW_Testimonials_Shortcode::get_instance();
 
         add_action( 'elementor/init', array( $this, 'init_elementor' ) );
+        add_action( 'wp_enqueue_scripts', array( $this, 'register_frontend_assets' ), 5 );
+    }
+
+    /**
+     * Register (but don't enqueue) frontend assets early so Elementor's
+     * get_style_depends() / get_script_depends() can reference them before wp_head() fires.
+     */
+    public function register_frontend_assets() {
+        // Register Swiper from CDN only if not already registered (e.g. by Elementor).
+        if ( ! wp_style_is( 'swiper', 'registered' ) ) {
+            wp_register_style( 'swiper', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css', array(), '11.0.0' );
+        }
+        if ( ! wp_script_is( 'swiper', 'registered' ) ) {
+            wp_register_script( 'swiper', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js', array(), '11.0.0', true );
+        }
+
+        wp_register_style(
+            'otw-testimonials-frontend',
+            OTW_TESTIMONIALS_URL . 'assets/css/frontend.css',
+            array(),
+            filemtime( OTW_TESTIMONIALS_DIR . 'assets/css/frontend.css' )
+        );
+
+        wp_register_script(
+            'otw-testimonials-frontend',
+            OTW_TESTIMONIALS_URL . 'assets/js/frontend.js',
+            array(),
+            filemtime( OTW_TESTIMONIALS_DIR . 'assets/js/frontend.js' ),
+            true
+        );
     }
 
     private function maybe_create_table() {
