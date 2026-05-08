@@ -8,9 +8,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @var object $testimonial
  */
 
-$image_url = $testimonial->image_id ? wp_get_attachment_image_url( $testimonial->image_id, 'thumbnail' ) : '';
+$image_url    = $testimonial->image_id ? wp_get_attachment_image_url( $testimonial->image_id, 'thumbnail' ) : '';
+$display_date = ! empty( $testimonial->testimonial_date ) ? $testimonial->testimonial_date : $testimonial->created_at;
 ?>
-<div class="otw-testimonial-card otw-card--google">
+<div class="otw-testimonial-card otw-card--google otw-testimonial-<?php echo absint( $testimonial->id ); ?>">
     <div class="otw-card__header">
         <div class="otw-card__author-info">
             <?php if ( $image_url ) : ?>
@@ -25,7 +26,7 @@ $image_url = $testimonial->image_id ? wp_get_attachment_image_url( $testimonial-
                 <?php if ( ! empty( $testimonial->author_name ) ) : ?>
                     <span class="otw-card__position"><?php echo esc_html( $testimonial->author_name ); ?></span>
                 <?php endif; ?>
-                <span class="otw-card__date"><?php echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $testimonial->created_at ) ) ); ?></span>
+                <span class="otw-card__date"><?php echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $display_date ) ) ); ?></span>
             </div>
         </div>
         <div class="otw-card__platform-icon">
@@ -49,4 +50,28 @@ $image_url = $testimonial->image_id ? wp_get_attachment_image_url( $testimonial-
     <div class="otw-card__content">
         <div class="otw-content-body"><?php echo wp_kses_post( $testimonial->description ); ?></div>
     </div>
+
+    <?php
+    $gallery_ids = ! empty( $testimonial->gallery_ids )
+        ? array_filter( array_map( 'absint', json_decode( $testimonial->gallery_ids, true ) ?: array() ) )
+        : array();
+    if ( ! empty( $gallery_ids ) ) :
+        $count = count( $gallery_ids );
+    ?>
+    <div class="otw-card__gallery<?php echo $count === 1 ? ' otw-card__gallery--single' : ''; ?>">
+        <?php foreach ( $gallery_ids as $gid ) :
+            $full_url  = wp_get_attachment_image_url( $gid, 'full' );
+            $thumb_url = wp_get_attachment_image_url( $gid, 'medium' );
+            if ( ! $full_url ) continue;
+        ?>
+            <a href="<?php echo esc_url( $full_url ); ?>"
+               class="otw-gallery__item glightbox"
+               data-gallery="testimonial-<?php echo esc_attr( $testimonial->id ); ?>"
+               data-type="image"
+               data-elementor-open-lightbox="no">
+                <img src="<?php echo esc_url( $thumb_url ?: $full_url ); ?>" alt="" loading="lazy">
+            </a>
+        <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
 </div>

@@ -1,11 +1,12 @@
 <?php
+declare(strict_types=1);
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
 class OTW_Testimonials_Activator {
 
-    const DB_VERSION = '1.1.0';
+    const DB_VERSION = '1.3.0';
 
     public static function activate() {
         self::create_table();
@@ -29,6 +30,8 @@ class OTW_Testimonials_Activator {
             sort_order INT(11) NOT NULL DEFAULT 0,
             related_post_id BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
             status VARCHAR(20) NOT NULL DEFAULT 'publish',
+            gallery_ids TEXT NOT NULL DEFAULT '',
+            testimonial_date DATE NULL DEFAULT NULL,
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id),

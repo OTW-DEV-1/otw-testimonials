@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -40,16 +41,47 @@ class OTW_Testimonials_Admin {
         }
 
         wp_enqueue_media();
+
+        // Bootstrap — scoped to this plugin's admin pages only (vendor file required).
+        wp_enqueue_style(
+            'otw-testimonials-bootstrap',
+            OTW_TESTIMONIALS_URL . 'assets/css/vendor/bootstrap.min.css',
+            array(),
+            '5.3.3'
+        );
+        wp_enqueue_script(
+            'otw-testimonials-bootstrap',
+            OTW_TESTIMONIALS_URL . 'assets/js/vendor/bootstrap.bundle.min.js',
+            array(),
+            '5.3.3',
+            true
+        );
+
+        // Select2 — all <select> elements must use Select2 (vendor file required).
+        wp_enqueue_style(
+            'otw-testimonials-select2',
+            OTW_TESTIMONIALS_URL . 'assets/css/vendor/select2.min.css',
+            array(),
+            '4.1.0'
+        );
+        wp_enqueue_script(
+            'otw-testimonials-select2',
+            OTW_TESTIMONIALS_URL . 'assets/js/vendor/select2.min.js',
+            array( 'jquery' ),
+            '4.1.0',
+            true
+        );
+
         wp_enqueue_style(
             'otw-testimonials-admin',
             OTW_TESTIMONIALS_URL . 'assets/css/admin.css',
-            array(),
+            array( 'otw-testimonials-bootstrap', 'otw-testimonials-select2' ),
             filemtime( OTW_TESTIMONIALS_DIR . 'assets/css/admin.css' )
         );
         wp_enqueue_script(
             'otw-testimonials-admin',
             OTW_TESTIMONIALS_URL . 'assets/js/admin.js',
-            array( 'jquery' ),
+            array( 'jquery', 'otw-testimonials-select2' ),
             filemtime( OTW_TESTIMONIALS_DIR . 'assets/js/admin.js' ),
             true
         );
@@ -59,6 +91,12 @@ class OTW_Testimonials_Admin {
             'searching'   => __( 'Searching...', 'otw-testimonials' ),
             'noResults'   => __( 'No results found.', 'otw-testimonials' ),
         ) );
+
+        // WP color picker — only needed on the Design Settings page.
+        if ( strpos( $hook, 'otw-testimonials-design' ) !== false ) {
+            wp_enqueue_style( 'wp-color-picker' );
+            wp_enqueue_script( 'wp-color-picker' );
+        }
     }
 
     public function render_page() {
@@ -89,13 +127,21 @@ class OTW_Testimonials_Admin {
                 <?php esc_html_e( 'Add New', 'otw-testimonials' ); ?>
             </a>
             <hr class="wp-header-end">
-            <form method="get">
-                <input type="hidden" name="page" value="otw-testimonials">
-                <?php $list_table->display(); ?>
-            </form>
+            <div class="otw-admin-wrap">
+            <div class="card mb-3">
+                <div class="card-body p-0">
+                    <form method="get">
+                        <input type="hidden" name="page" value="otw-testimonials">
+                        <?php $list_table->display(); ?>
+                    </form>
+                </div>
+            </div>
 
-            <div class="otw-shortcode-help">
-                <h2><?php esc_html_e( 'Shortcode Usage', 'otw-testimonials' ); ?></h2>
+            <div class="card">
+                <div class="card-header">
+                    <strong><?php esc_html_e( 'Shortcode Usage', 'otw-testimonials' ); ?></strong>
+                </div>
+                <div class="card-body otw-shortcode-help">
                 <p><?php esc_html_e( 'Use the following shortcode to display testimonials on any page or post:', 'otw-testimonials' ); ?></p>
                 <code class="otw-shortcode-example">[otw_testimonials]</code>
 
@@ -111,10 +157,11 @@ class OTW_Testimonials_Admin {
                     </thead>
                     <tbody>
                         <tr><td><code>layout</code></td><td>grid</td><td>grid, carousel</td><td><?php esc_html_e( 'Display layout type', 'otw-testimonials' ); ?></td></tr>
-                        <tr><td><code>columns</code></td><td>3</td><td>1–6</td><td><?php esc_html_e( 'Columns on desktop', 'otw-testimonials' ); ?></td></tr>
-                        <tr><td><code>columns_tablet</code></td><td>2</td><td>1–4</td><td><?php esc_html_e( 'Columns on tablet', 'otw-testimonials' ); ?></td></tr>
-                        <tr><td><code>columns_mobile</code></td><td>1</td><td>1–2</td><td><?php esc_html_e( 'Columns on mobile', 'otw-testimonials' ); ?></td></tr>
-                        <tr><td><code>platform</code></td><td>all</td><td>all, google, facebook, trustpilot</td><td><?php esc_html_e( 'Filter by platform', 'otw-testimonials' ); ?></td></tr>
+                        <tr><td><code>columns</code></td><td>3</td><td>1–6</td><td><?php esc_html_e( 'Columns on desktop (≥1400px)', 'otw-testimonials' ); ?></td></tr>
+                        <tr><td><code>columns_laptop</code></td><td>3</td><td>1–6</td><td><?php esc_html_e( 'Columns on laptop (1200–1399px)', 'otw-testimonials' ); ?></td></tr>
+                        <tr><td><code>columns_tablet</code></td><td>2</td><td>1–4</td><td><?php esc_html_e( 'Columns on tablet (768–1199px)', 'otw-testimonials' ); ?></td></tr>
+                        <tr><td><code>columns_mobile</code></td><td>1</td><td>1–2</td><td><?php esc_html_e( 'Columns on mobile (<768px)', 'otw-testimonials' ); ?></td></tr>
+                        <tr><td><code>platform</code></td><td>all</td><td>all, google, facebook, trustpilot, instagram</td><td><?php esc_html_e( 'Filter by platform', 'otw-testimonials' ); ?></td></tr>
                         <tr><td><code>limit</code></td><td>10</td><td><?php esc_html_e( 'Any number', 'otw-testimonials' ); ?></td><td><?php esc_html_e( 'Max testimonials to show', 'otw-testimonials' ); ?></td></tr>
                         <tr><td><code>orderby</code></td><td>date</td><td>date, rating, random, sort_order, title</td><td><?php esc_html_e( 'Order testimonials by', 'otw-testimonials' ); ?></td></tr>
                         <tr><td><code>order</code></td><td>DESC</td><td>ASC, DESC</td><td><?php esc_html_e( 'Sort direction', 'otw-testimonials' ); ?></td></tr>
@@ -125,6 +172,7 @@ class OTW_Testimonials_Admin {
                         <tr><td><code>loop</code></td><td>1</td><td>0, 1</td><td><?php esc_html_e( 'Infinite loop (carousel only)', 'otw-testimonials' ); ?></td></tr>
                         <tr><td><code>arrows</code></td><td>1</td><td>0, 1</td><td><?php esc_html_e( 'Show nav arrows (carousel only)', 'otw-testimonials' ); ?></td></tr>
                         <tr><td><code>dots</code></td><td>1</td><td>0, 1</td><td><?php esc_html_e( 'Show pagination dots (carousel only)', 'otw-testimonials' ); ?></td></tr>
+                        <tr><td><code>load_more_text</code></td><td>Load More</td><td><?php esc_html_e( 'Any text', 'otw-testimonials' ); ?></td><td><?php esc_html_e( 'Label for the Load More button (grid only)', 'otw-testimonials' ); ?></td></tr>
                     </tbody>
                 </table>
 
@@ -137,8 +185,10 @@ class OTW_Testimonials_Admin {
                     <strong><?php esc_html_e( 'Elementor:', 'otw-testimonials' ); ?></strong>
                     <?php esc_html_e( 'You can also use the "OTW Testimonials" widget in Elementor with full visual controls.', 'otw-testimonials' ); ?>
                 </p>
-            </div>
-        </div>
+                </div><!-- /.card-body -->
+            </div><!-- /.card -->
+            </div><!-- /.otw-admin-wrap -->
+        </div><!-- /.wrap -->
         <?php
     }
 
@@ -155,14 +205,23 @@ class OTW_Testimonials_Admin {
         $platform        = $is_edit ? $testimonial->platform : 'google';
         $sort_order      = $is_edit ? $testimonial->sort_order : 0;
         $status          = $is_edit ? $testimonial->status : 'publish';
-        $related_post_id = $is_edit ? absint( $testimonial->related_post_id ) : 0;
+        $related_post_id  = $is_edit ? absint( $testimonial->related_post_id ) : 0;
+        $testimonial_date = $is_edit && ! empty( $testimonial->testimonial_date ) ? $testimonial->testimonial_date : current_time( 'Y-m-d' );
 
         $image_url           = $image_id ? wp_get_attachment_image_url( $image_id, 'thumbnail' ) : '';
         $related_post_title  = $related_post_id ? get_the_title( $related_post_id ) : '';
+
+        $gallery_ids_raw = $is_edit && ! empty( $testimonial->gallery_ids ) ? $testimonial->gallery_ids : '[]';
+        $gallery_ids     = json_decode( $gallery_ids_raw, true );
+        if ( ! is_array( $gallery_ids ) ) {
+            $gallery_ids = array();
+        }
         ?>
         <div class="wrap">
             <h1><?php echo $is_edit ? esc_html__( 'Edit Testimonial', 'otw-testimonials' ) : esc_html__( 'Add New Testimonial', 'otw-testimonials' ); ?></h1>
-
+            <div class="otw-admin-wrap">
+            <div class="card">
+            <div class="card-body">
             <form method="post" action="<?php echo esc_url( admin_url( 'admin.php?page=otw-testimonials' ) ); ?>" class="otw-testimonials-form">
                 <?php wp_nonce_field( 'otw_testimonials_save', 'otw_testimonials_nonce' ); ?>
                 <input type="hidden" name="otw_testimonial_id" value="<?php echo esc_attr( $id ); ?>">
@@ -211,6 +270,29 @@ class OTW_Testimonials_Admin {
                     </tr>
                     <tr>
                         <th scope="row">
+                            <label><?php esc_html_e( 'Gallery Images', 'otw-testimonials' ); ?></label>
+                        </th>
+                        <td>
+                            <input type="hidden" id="otw_gallery_ids" name="otw_gallery_ids" value="<?php echo esc_attr( wp_json_encode( array_values( $gallery_ids ) ) ); ?>">
+                            <div id="otw-gallery-preview" class="otw-gallery-preview">
+                                <?php foreach ( $gallery_ids as $gid ) :
+                                    $gid = absint( $gid );
+                                    if ( ! $gid ) continue;
+                                    $gurl = wp_get_attachment_image_url( $gid, 'thumbnail' );
+                                    if ( ! $gurl ) continue;
+                                ?>
+                                    <div class="otw-gallery-item" data-id="<?php echo esc_attr( $gid ); ?>">
+                                        <img src="<?php echo esc_url( $gurl ); ?>" alt="">
+                                        <button type="button" class="otw-gallery-item__remove" aria-label="<?php esc_attr_e( 'Remove', 'otw-testimonials' ); ?>">&times;</button>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <button type="button" id="otw-gallery-add-btn" class="button"><?php esc_html_e( 'Add Images', 'otw-testimonials' ); ?></button>
+                            <p class="description"><?php esc_html_e( 'Optional. Images displayed below the testimonial text. Click to open in a lightbox.', 'otw-testimonials' ); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">
                             <label for="otw_author_name"><?php esc_html_e( 'Position', 'otw-testimonials' ); ?></label>
                         </th>
                         <td>
@@ -241,6 +323,7 @@ class OTW_Testimonials_Admin {
                                 <option value="google" <?php selected( $platform, 'google' ); ?>><?php esc_html_e( 'Google', 'otw-testimonials' ); ?></option>
                                 <option value="facebook" <?php selected( $platform, 'facebook' ); ?>><?php esc_html_e( 'Facebook', 'otw-testimonials' ); ?></option>
                                 <option value="trustpilot" <?php selected( $platform, 'trustpilot' ); ?>><?php esc_html_e( 'Trustpilot', 'otw-testimonials' ); ?></option>
+                                <option value="instagram" <?php selected( $platform, 'instagram' ); ?>><?php esc_html_e( 'Instagram', 'otw-testimonials' ); ?></option>
                                 <option value="blank" <?php selected( $platform, 'blank' ); ?>><?php esc_html_e( 'Other (no platform)', 'otw-testimonials' ); ?></option>
                             </select>
                         </td>
@@ -284,11 +367,23 @@ class OTW_Testimonials_Admin {
                             </select>
                         </td>
                     </tr>
+                    <tr>
+                        <th scope="row">
+                            <label for="otw_testimonial_date"><?php esc_html_e( 'Testimonial Date', 'otw-testimonials' ); ?></label>
+                        </th>
+                        <td>
+                            <input type="date" id="otw_testimonial_date" name="otw_testimonial_date" value="<?php echo esc_attr( $testimonial_date ); ?>" class="regular-text">
+                            <p class="description"><?php esc_html_e( 'The date shown on the testimonial card. Defaults to today.', 'otw-testimonials' ); ?></p>
+                        </td>
+                    </tr>
                 </table>
 
                 <?php submit_button( $is_edit ? __( 'Update Testimonial', 'otw-testimonials' ) : __( 'Add Testimonial', 'otw-testimonials' ) ); ?>
             </form>
-        </div>
+            </div><!-- /.card-body -->
+            </div><!-- /.card -->
+            </div><!-- /.otw-admin-wrap -->
+        </div><!-- /.wrap -->
         <?php
     }
 
@@ -305,17 +400,21 @@ class OTW_Testimonials_Admin {
             wp_die( __( 'Security check failed.', 'otw-testimonials' ) );
         }
 
-        $id   = absint( $_POST['otw_testimonial_id'] ?? 0 );
+        $post_data = wp_unslash( $_POST );
+
+        $id   = absint( $post_data['otw_testimonial_id'] ?? 0 );
         $data = array(
-            'title'           => $_POST['otw_title'] ?? '',
-            'description'     => $_POST['otw_description'] ?? '',
-            'image_id'        => $_POST['otw_image_id'] ?? 0,
-            'author_name'     => $_POST['otw_author_name'] ?? '',
-            'rating'          => $_POST['otw_rating'] ?? 5,
-            'platform'        => $_POST['otw_platform'] ?? 'google',
-            'sort_order'      => $_POST['otw_sort_order'] ?? 0,
-            'status'          => $_POST['otw_status'] ?? 'publish',
-            'related_post_id' => $_POST['otw_related_post_id'] ?? 0,
+            'title'           => $post_data['otw_title'] ?? '',
+            'description'     => $post_data['otw_description'] ?? '',
+            'image_id'        => $post_data['otw_image_id'] ?? 0,
+            'author_name'     => $post_data['otw_author_name'] ?? '',
+            'rating'          => $post_data['otw_rating'] ?? 5,
+            'platform'        => $post_data['otw_platform'] ?? 'google',
+            'sort_order'      => $post_data['otw_sort_order'] ?? 0,
+            'status'          => $post_data['otw_status'] ?? 'publish',
+            'related_post_id'  => $post_data['otw_related_post_id'] ?? 0,
+            'testimonial_date' => $post_data['otw_testimonial_date'] ?? '',
+            'gallery_ids'      => $post_data['otw_gallery_ids'] ?? '[]',
         );
 
         if ( $id ) {

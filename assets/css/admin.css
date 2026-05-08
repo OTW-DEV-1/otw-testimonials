@@ -1,3 +1,22 @@
+/* Bootstrap card scoping — MANDATORY: all .card elements must not overflow WP admin content column */
+.otw-admin-wrap .card {
+    max-width: 100%;
+}
+
+.otw-admin-wrap {
+    margin-top: 16px;
+}
+
+/* Prevent Bootstrap nav/button resets from leaking into WP admin header */
+.otw-admin-wrap .card-header {
+    font-size: 14px;
+}
+
+/* Select2 width fix inside form-table */
+.otw-testimonials-form .select2-container {
+    min-width: 200px;
+}
+
 .otw-testimonials-form .form-table th {
     width: 150px;
     padding-top: 20px;
@@ -147,4 +166,298 @@
 
 .otw-post-search-wrap #otw-post-clear {
     margin-top: 4px;
+}
+
+/* Gallery upload */
+.otw-gallery-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.otw-gallery-item {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.otw-gallery-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+    display: block;
+    border: 1px solid #ddd;
+}
+
+.otw-gallery-item__remove {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 20px;
+    height: 20px;
+    background: #cc1818;
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.otw-gallery-item__remove:hover {
+    background: #a01010;
+}
+
+/* ── Design Settings page — Bootstrap nav override (WP admin resets flex)  ── */
+
+/*
+ * WP admin injects its own .nav / .nav-tab styles that reset Bootstrap's flex
+ * display to block. All overrides below are scoped to #otw-design-form so they
+ * never affect WP core UI elements.
+ */
+
+/* Base nav reset */
+#otw-design-form .nav {
+    display: flex !important;
+    flex-wrap: wrap;
+    padding-left: 0;
+    margin-bottom: 0;
+    list-style: none;
+}
+
+#otw-design-form .nav-item {
+    flex-shrink: 0;
+    float: none !important;   /* WP admin adds float to li in some themes */
+}
+
+/* Nav-tabs (main section tabs + breakpoint tabs) */
+#otw-design-form .nav-tabs {
+    border-bottom: 1px solid #dee2e6;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 0;
+}
+
+#otw-design-form .nav-tabs .nav-item {
+    margin-bottom: -1px;
+}
+
+#otw-design-form .nav-tabs .nav-link {
+    display: block;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #444;
+    background: none;
+    border: 1px solid transparent;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: border-color 0.15s, color 0.15s;
+    box-shadow: none !important; /* WP admin adds box-shadow to buttons */
+    outline: none;
+}
+
+#otw-design-form .nav-tabs .nav-link:hover {
+    border-color: #e9ecef #e9ecef #dee2e6;
+    color: #2271b1;
+}
+
+#otw-design-form .nav-tabs .nav-link.active {
+    color: #212529;
+    background-color: #fff;
+    border-color: #dee2e6 #dee2e6 #fff;
+    font-weight: 600;
+}
+
+/* Nav-pills (Typography + Carousel sub-sections) */
+#otw-design-form .nav-pills {
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+#otw-design-form .nav-pills .nav-link {
+    display: block;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #555;
+    background: #f0f0f1;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+    box-shadow: none !important;
+    outline: none;
+}
+
+#otw-design-form .nav-pills .nav-link.active {
+    background-color: #2271b1;
+    border-color: #2271b1;
+    color: #fff;
+}
+
+/* Breakpoint sub-tabs (smaller pills style) */
+#otw-design-form .otw-bp-tabs {
+    gap: 3px;
+    flex-wrap: wrap;
+    border-bottom: none;
+    margin-bottom: 12px !important;
+}
+
+#otw-design-form .otw-bp-tabs .nav-item {
+    margin-bottom: 0;
+}
+
+#otw-design-form .otw-bp-tabs .nav-link {
+    padding: 4px 12px;
+    font-size: 12px;
+    border-radius: 4px;
+    border: 1px solid #dcdcde;
+    background: #f6f7f7;
+    color: #555;
+    font-weight: 400;
+    box-shadow: none !important;
+}
+
+#otw-design-form .otw-bp-tabs .nav-link.active {
+    background: #2271b1;
+    border-color: #2271b1;
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Tab content pane visibility */
+#otw-design-form .tab-content > .tab-pane {
+    display: none;
+}
+
+#otw-design-form .tab-content > .tab-pane.active {
+    display: block;
+}
+
+/* Tab content wrapper (main section card) */
+#otw-design-form .otw-tab-card {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    padding: 24px;
+    margin-bottom: 16px;
+}
+
+/* Section heading labels */
+#otw-design-form .otw-section-heading {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: #2271b1;
+    margin: 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e8eaed;
+}
+
+/* Bootstrap grid inside form (WP admin may float .col-* ) */
+#otw-design-form .row {
+    display: flex !important;
+    flex-wrap: wrap;
+    margin-left: -8px;
+    margin-right: -8px;
+}
+
+#otw-design-form .row > [class*="col-"] {
+    float: none !important;
+    padding-left: 8px;
+    padding-right: 8px;
+    box-sizing: border-box;
+}
+
+#otw-design-form .col-sm-3 { flex: 0 0 25%; max-width: 25%; }
+#otw-design-form .col-sm-4 { flex: 0 0 33.333%; max-width: 33.333%; }
+#otw-design-form .col-sm-6 { flex: 0 0 50%; max-width: 50%; }
+#otw-design-form .col-12   { flex: 0 0 100%; max-width: 100%; }
+
+/* Form controls */
+#otw-design-form .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: #3c434a;
+    margin-bottom: 4px;
+}
+
+#otw-design-form .form-control,
+#otw-design-form .form-select {
+    display: block;
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #2c3338;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+    height: auto;
+    box-shadow: none;
+}
+
+#otw-design-form .form-control:focus,
+#otw-design-form .form-select:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
+/* Fix wp-color-picker swatch height to match form-control */
+#otw-design-form .wp-picker-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#otw-design-form .wp-picker-container .wp-color-result.button {
+    height: 34px;
+    line-height: 32px;
+    border-radius: 4px;
+    border: 1px solid #8c8f94;
+    min-width: 60px;
+    box-shadow: none;
+}
+
+/* Select2 inside design form */
+#otw-design-form .select2-container .select2-selection--single {
+    height: 34px;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+}
+
+#otw-design-form .select2-container .select2-selection--single .select2-selection__rendered {
+    line-height: 32px;
+    padding-left: 10px;
+    font-size: 13px;
+    color: #2c3338;
+}
+
+#otw-design-form .select2-container .select2-selection--single .select2-selection__arrow {
+    height: 32px;
+}
+
+/* Gap utility for row */
+#otw-design-form .g-3 {
+    --bs-gutter-y: 12px;
+    row-gap: 12px;
 }

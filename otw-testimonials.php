@@ -1,8 +1,9 @@
 <?php
+declare(strict_types=1);
 /**
  * Plugin Name: OTW Testimonials
- * Description: Testimonials manager with custom DB table, admin CRUD, shortcode, and Elementor widget. Supports Google, Facebook, and Trustpilot card designs with carousel and grid layouts.
- * Version: 1.0.0
+ * Description: Testimonials manager with custom DB table, admin CRUD, shortcode, and Elementor widget. Supports Google, Facebook, Trustpilot, and Instagram card designs with carousel and grid layouts.
+ * Version: 1.0.1
  * Author: OTW
  * Text Domain: otw-testimonials
  * Domain Path: /languages
@@ -14,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'OTW_TESTIMONIALS_VERSION', '1.0.0' );
+define( 'OTW_TESTIMONIALS_VERSION', '1.0.1' );
 define( 'OTW_TESTIMONIALS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'OTW_TESTIMONIALS_URL', plugin_dir_url( __FILE__ ) );
 define( 'OTW_TESTIMONIALS_BASENAME', plugin_basename( __FILE__ ) );
@@ -38,6 +39,8 @@ final class OTW_Testimonials {
     private function load_dependencies() {
         require_once OTW_TESTIMONIALS_DIR . 'includes/class-activator.php';
         require_once OTW_TESTIMONIALS_DIR . 'includes/class-db.php';
+        require_once OTW_TESTIMONIALS_DIR . 'includes/class-css-generator.php';
+        require_once OTW_TESTIMONIALS_DIR . 'includes/class-settings.php';
         require_once OTW_TESTIMONIALS_DIR . 'includes/class-admin.php';
         require_once OTW_TESTIMONIALS_DIR . 'includes/class-list-table.php';
         require_once OTW_TESTIMONIALS_DIR . 'includes/class-shortcode.php';
@@ -51,6 +54,7 @@ final class OTW_Testimonials {
 
         if ( is_admin() ) {
             OTW_Testimonials_Admin::get_instance();
+            OTW_Testimonials_Settings::get_instance();
         }
 
         OTW_Testimonials_Shortcode::get_instance();
@@ -64,14 +68,16 @@ final class OTW_Testimonials {
      * get_style_depends() / get_script_depends() can reference them before wp_head() fires.
      */
     public function register_frontend_assets() {
-        // Register Swiper from CDN only if not already registered (e.g. by Elementor).
-        if ( ! wp_style_is( 'swiper', 'registered' ) ) {
-            wp_register_style( 'swiper', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css', array(), '11.0.0' );
-        }
-        if ( ! wp_script_is( 'swiper', 'registered' ) ) {
-            wp_register_script( 'swiper', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js', array(), '11.0.0', true );
-        }
+        // Bundled Swiper — always use our own copy for predictable behaviour.
+        wp_register_style( 'otw-swiper', OTW_TESTIMONIALS_URL . 'assets/css/vendor/swiper.min.css', array(), '11.0.0' );
+        wp_register_script( 'otw-swiper', OTW_TESTIMONIALS_URL . 'assets/js/vendor/swiper.min.js', array(), '11.0.0', true );
 
+        // Bundled GLightbox — own copy, no CDN dependency, no conflicts with page builders.
+        wp_register_style( 'otw-glightbox', OTW_TESTIMONIALS_URL . 'assets/css/vendor/glightbox.min.css', array(), '3.3.0' );
+        wp_register_script( 'otw-glightbox', OTW_TESTIMONIALS_URL . 'assets/js/vendor/glightbox.min.js', array(), '3.3.0', true );
+
+        // Register core frontend CSS/JS — enqueueing happens below (shortcode pages) or via
+        // Elementor's get_style_depends() / get_script_depends() (widget pages).
         wp_register_style(
             'otw-testimonials-frontend',
             OTW_TESTIMONIALS_URL . 'assets/css/frontend.css',
@@ -86,6 +92,19 @@ final class OTW_Testimonials {
             filemtime( OTW_TESTIMONIALS_DIR . 'assets/js/frontend.js' ),
             true
         );
+
+        // Enqueue CSS in <head> only on singular pages that contain the shortcode.
+        // Elementor widget pages are handled by get_style_depends() — no global load needed.
+        global $post;
+        if ( is_singular() && isset( $post->post_content ) && has_shortcode( $post->post_content, 'otw_testimonials' ) ) {
+            wp_enqueue_style( 'otw-testimonials-frontend' );
+            wp_enqueue_style( 'otw-glightbox' );
+            // Inject design settings CSS as inline style on the frontend stylesheet handle.
+            $design_css = OTW_Testimonials_Settings::get_design_css();
+            if ( $design_css ) {
+                wp_add_inline_style( 'otw-testimonials-frontend', $design_css );
+            }
+        }
     }
 
     private function maybe_create_table() {

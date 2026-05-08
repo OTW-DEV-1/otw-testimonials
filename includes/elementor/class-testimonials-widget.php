@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -22,15 +23,15 @@ class OTW_Testimonials_Elementor_Widget extends \Elementor\Widget_Base {
     }
 
     public function get_keywords() {
-        return array( 'testimonials', 'reviews', 'google', 'facebook', 'trustpilot', 'carousel', 'otw' );
+        return array( 'testimonials', 'reviews', 'google', 'facebook', 'trustpilot', 'instagram', 'carousel', 'otw' );
     }
 
     public function get_style_depends() {
-        return array( 'swiper', 'otw-testimonials-frontend' );
+        return array( 'otw-glightbox', 'otw-testimonials-frontend' );
     }
 
     public function get_script_depends() {
-        return array( 'swiper', 'otw-testimonials-frontend' );
+        return array( 'otw-glightbox', 'otw-testimonials-frontend' );
     }
 
     protected function register_controls() {
@@ -38,8 +39,12 @@ class OTW_Testimonials_Elementor_Widget extends \Elementor\Widget_Base {
         $this->register_layout_controls();
         $this->register_carousel_controls();
         $this->register_style_card_controls();
+        $this->register_style_avatar_controls();
         $this->register_style_content_controls();
         $this->register_style_rating_controls();
+        $this->register_style_loadmore_controls();
+        $this->register_style_carousel_nav_controls();
+        $this->register_style_gallery_controls();
     }
 
     private function register_query_controls() {
@@ -57,6 +62,7 @@ class OTW_Testimonials_Elementor_Widget extends \Elementor\Widget_Base {
                 'google'     => __( 'Google', 'otw-testimonials' ),
                 'facebook'   => __( 'Facebook', 'otw-testimonials' ),
                 'trustpilot' => __( 'Trustpilot', 'otw-testimonials' ),
+                'instagram'  => __( 'Instagram', 'otw-testimonials' ),
                 'blank'      => __( 'Other (no platform)', 'otw-testimonials' ),
             ),
         ) );
@@ -136,6 +142,8 @@ class OTW_Testimonials_Elementor_Widget extends \Elementor\Widget_Base {
             'label'          => __( 'Columns', 'otw-testimonials' ),
             'type'           => \Elementor\Controls_Manager::SELECT,
             'default'        => '3',
+            'widescreen_default' => '3',
+            'laptop_default' => '3',
             'tablet_default' => '2',
             'mobile_default' => '1',
             'options'        => array(
@@ -146,6 +154,30 @@ class OTW_Testimonials_Elementor_Widget extends \Elementor\Widget_Base {
                 '5' => '5',
                 '6' => '6',
             ),
+        ) );
+
+        $this->add_control( 'read_more_text', array(
+            'label'       => __( 'Read More Text', 'otw-testimonials' ),
+            'type'        => \Elementor\Controls_Manager::TEXT,
+            'default'     => __( 'Read more', 'otw-testimonials' ),
+            'placeholder' => __( 'Read more', 'otw-testimonials' ),
+            'separator'   => 'before',
+        ) );
+
+        $this->add_control( 'show_load_more', array(
+            'label'        => __( 'Load More Button', 'otw-testimonials' ),
+            'type'         => \Elementor\Controls_Manager::SWITCHER,
+            'default'      => '',
+            'return_value' => 'yes',
+            'condition'    => array( 'layout' => 'grid' ),
+        ) );
+
+        $this->add_control( 'load_more_text', array(
+            'label'       => __( 'Load More Text', 'otw-testimonials' ),
+            'type'        => \Elementor\Controls_Manager::TEXT,
+            'default'     => __( 'Load More', 'otw-testimonials' ),
+            'placeholder' => __( 'Load More', 'otw-testimonials' ),
+            'condition'   => array( 'layout' => 'grid', 'show_load_more' => 'yes' ),
         ) );
 
         $this->add_responsive_control( 'gap', array(
@@ -253,6 +285,44 @@ class OTW_Testimonials_Elementor_Widget extends \Elementor\Widget_Base {
             'selector' => '{{WRAPPER}} .otw-testimonial-card',
         ) );
 
+        $this->add_responsive_control( 'card_margin', array(
+            'label'      => __( 'Margin', 'otw-testimonials' ),
+            'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+            'size_units' => array( 'px', 'em', '%' ),
+            'selectors'  => array(
+                '{{WRAPPER}} .otw-testimonial-card' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+            ),
+            'separator'  => 'before',
+        ) );
+
+        $this->add_control( 'heading_card_hover', array(
+            'label'     => __( 'Hover State', 'otw-testimonials' ),
+            'type'      => \Elementor\Controls_Manager::HEADING,
+            'separator' => 'before',
+        ) );
+
+        $this->add_control( 'card_hover_bg_color', array(
+            'label'     => __( 'Hover Background', 'otw-testimonials' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'selectors' => array(
+                '{{WRAPPER}} .otw-testimonial-card:hover' => 'background-color: {{VALUE}};',
+            ),
+        ) );
+
+        $this->add_group_control( \Elementor\Group_Control_Box_Shadow::get_type(), array(
+            'name'     => 'card_hover_shadow',
+            'selector' => '{{WRAPPER}} .otw-testimonial-card:hover',
+        ) );
+
+        $this->add_control( 'card_hover_transform', array(
+            'label'       => __( 'Hover Transform', 'otw-testimonials' ),
+            'type'        => \Elementor\Controls_Manager::TEXT,
+            'placeholder' => 'translateY(-4px)',
+            'selectors'   => array(
+                '{{WRAPPER}} .otw-testimonial-card:hover' => 'transform: {{VALUE}};',
+            ),
+        ) );
+
         $this->end_controls_section();
     }
 
@@ -318,6 +388,89 @@ class OTW_Testimonials_Elementor_Widget extends \Elementor\Widget_Base {
             'selector' => '{{WRAPPER}} .otw-card__author-name',
         ) );
 
+        $this->add_control( 'heading_position_style', array(
+            'label'     => __( 'Position / Job Title', 'otw-testimonials' ),
+            'type'      => \Elementor\Controls_Manager::HEADING,
+            'separator' => 'before',
+        ) );
+
+        $this->add_control( 'position_color', array(
+            'label'     => __( 'Color', 'otw-testimonials' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'selectors' => array(
+                '{{WRAPPER}} .otw-card__position' => 'color: {{VALUE}};',
+            ),
+        ) );
+
+        $this->add_group_control( \Elementor\Group_Control_Typography::get_type(), array(
+            'name'     => 'position_typography',
+            'selector' => '{{WRAPPER}} .otw-card__position',
+        ) );
+
+        $this->add_control( 'heading_date_style', array(
+            'label'     => __( 'Date', 'otw-testimonials' ),
+            'type'      => \Elementor\Controls_Manager::HEADING,
+            'separator' => 'before',
+        ) );
+
+        $this->add_control( 'date_show', array(
+            'label'        => __( 'Show Date', 'otw-testimonials' ),
+            'type'         => \Elementor\Controls_Manager::SWITCHER,
+            'default'      => 'yes',
+            'return_value' => 'yes',
+            'selectors'    => array(
+                '{{WRAPPER}} .otw-card__date' => 'display: {{VALUE}};',
+            ),
+            'selectors_dictionary' => array(
+                ''    => 'none',
+                'yes' => 'inline',
+            ),
+        ) );
+
+        $this->add_control( 'date_color', array(
+            'label'     => __( 'Color', 'otw-testimonials' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'selectors' => array(
+                '{{WRAPPER}} .otw-card__date' => 'color: {{VALUE}};',
+            ),
+        ) );
+
+        $this->add_group_control( \Elementor\Group_Control_Typography::get_type(), array(
+            'name'     => 'date_typography',
+            'selector' => '{{WRAPPER}} .otw-card__date',
+        ) );
+
+        $this->add_control( 'heading_platform_icon', array(
+            'label'     => __( 'Platform / Quote Icon', 'otw-testimonials' ),
+            'type'      => \Elementor\Controls_Manager::HEADING,
+            'separator' => 'before',
+        ) );
+
+        $this->add_control( 'platform_icon_show', array(
+            'label'        => __( 'Show Platform Icon', 'otw-testimonials' ),
+            'type'         => \Elementor\Controls_Manager::SWITCHER,
+            'default'      => 'yes',
+            'return_value' => 'yes',
+            'selectors'    => array(
+                '{{WRAPPER}} .otw-card__platform-icon' => 'display: {{VALUE}};',
+                '{{WRAPPER}} .otw-card__quote-icon'    => 'display: {{VALUE}};',
+            ),
+            'selectors_dictionary' => array(
+                ''    => 'none',
+                'yes' => 'block',
+            ),
+        ) );
+
+        $this->add_responsive_control( 'platform_icon_size', array(
+            'label'      => __( 'Icon Size (px)', 'otw-testimonials' ),
+            'type'       => \Elementor\Controls_Manager::SLIDER,
+            'range'      => array( 'px' => array( 'min' => 12, 'max' => 48 ) ),
+            'selectors'  => array(
+                '{{WRAPPER}} .otw-card__platform-icon svg' => 'width: {{SIZE}}px; height: {{SIZE}}px;',
+                '{{WRAPPER}} .otw-card__quote-icon svg'    => 'width: {{SIZE}}px; height: auto;',
+            ),
+        ) );
+
         $this->end_controls_section();
     }
 
@@ -361,6 +514,233 @@ class OTW_Testimonials_Elementor_Widget extends \Elementor\Widget_Base {
         $this->end_controls_section();
     }
 
+    private function register_style_avatar_controls() {
+        $this->start_controls_section( 'section_style_avatar', array(
+            'label' => __( 'Avatar', 'otw-testimonials' ),
+            'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+        ) );
+
+        $this->add_responsive_control( 'avatar_size', array(
+            'label'      => __( 'Size', 'otw-testimonials' ),
+            'type'       => \Elementor\Controls_Manager::SLIDER,
+            'range'      => array( 'px' => array( 'min' => 24, 'max' => 120 ) ),
+            'selectors'  => array(
+                '{{WRAPPER}} .otw-card__avatar' => 'width: {{SIZE}}px; height: {{SIZE}}px; min-width: {{SIZE}}px;',
+            ),
+        ) );
+
+        $this->add_responsive_control( 'avatar_border_radius', array(
+            'label'      => __( 'Border Radius', 'otw-testimonials' ),
+            'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+            'size_units' => array( 'px', '%' ),
+            'selectors'  => array(
+                '{{WRAPPER}} .otw-card__avatar' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+            ),
+        ) );
+
+        $this->add_group_control( \Elementor\Group_Control_Border::get_type(), array(
+            'name'     => 'avatar_border',
+            'selector' => '{{WRAPPER}} .otw-card__avatar',
+        ) );
+
+        $this->end_controls_section();
+    }
+
+    private function register_style_loadmore_controls() {
+        $this->start_controls_section( 'section_style_loadmore', array(
+            'label'     => __( 'Load More Button', 'otw-testimonials' ),
+            'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
+            'condition' => array( 'layout' => 'grid', 'show_load_more' => 'yes' ),
+        ) );
+
+        $this->add_group_control( \Elementor\Group_Control_Typography::get_type(), array(
+            'name'     => 'loadmore_typography',
+            'selector' => '{{WRAPPER}} .otw-load-more-btn',
+        ) );
+
+        $this->start_controls_tabs( 'loadmore_tabs' );
+
+        $this->start_controls_tab( 'loadmore_normal', array( 'label' => __( 'Normal', 'otw-testimonials' ) ) );
+        $this->add_control( 'loadmore_color', array(
+            'label'     => __( 'Text Color', 'otw-testimonials' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'selectors' => array( '{{WRAPPER}} .otw-load-more-btn' => 'color: {{VALUE}};' ),
+        ) );
+        $this->add_control( 'loadmore_bg_color', array(
+            'label'     => __( 'Background', 'otw-testimonials' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'selectors' => array( '{{WRAPPER}} .otw-load-more-btn' => 'background-color: {{VALUE}};' ),
+        ) );
+        $this->end_controls_tab();
+
+        $this->start_controls_tab( 'loadmore_hover', array( 'label' => __( 'Hover', 'otw-testimonials' ) ) );
+        $this->add_control( 'loadmore_hover_color', array(
+            'label'     => __( 'Text Color', 'otw-testimonials' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'selectors' => array( '{{WRAPPER}} .otw-load-more-btn:hover' => 'color: {{VALUE}};' ),
+        ) );
+        $this->add_control( 'loadmore_hover_bg_color', array(
+            'label'     => __( 'Background', 'otw-testimonials' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'selectors' => array( '{{WRAPPER}} .otw-load-more-btn:hover' => 'background-color: {{VALUE}};' ),
+        ) );
+        $this->end_controls_tab();
+
+        $this->end_controls_tabs();
+
+        $this->add_group_control( \Elementor\Group_Control_Border::get_type(), array(
+            'name'      => 'loadmore_border',
+            'selector'  => '{{WRAPPER}} .otw-load-more-btn',
+            'separator' => 'before',
+        ) );
+
+        $this->add_responsive_control( 'loadmore_border_radius', array(
+            'label'      => __( 'Border Radius', 'otw-testimonials' ),
+            'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+            'size_units' => array( 'px', '%' ),
+            'selectors'  => array(
+                '{{WRAPPER}} .otw-load-more-btn' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+            ),
+        ) );
+
+        $this->add_responsive_control( 'loadmore_padding', array(
+            'label'      => __( 'Padding', 'otw-testimonials' ),
+            'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+            'size_units' => array( 'px', 'em' ),
+            'selectors'  => array(
+                '{{WRAPPER}} .otw-load-more-btn' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+            ),
+        ) );
+
+        $this->end_controls_section();
+    }
+
+    private function register_style_carousel_nav_controls() {
+        $this->start_controls_section( 'section_style_carousel_nav', array(
+            'label'     => __( 'Carousel Navigation', 'otw-testimonials' ),
+            'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
+            'condition' => array( 'layout' => 'carousel' ),
+        ) );
+
+        $this->add_control( 'heading_arrows', array(
+            'label' => __( 'Arrows', 'otw-testimonials' ),
+            'type'  => \Elementor\Controls_Manager::HEADING,
+        ) );
+
+        $this->add_control( 'arrow_color', array(
+            'label'     => __( 'Arrow Color', 'otw-testimonials' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'selectors' => array(
+                '{{WRAPPER}} .swiper-button-prev, {{WRAPPER}} .swiper-button-next' => 'color: {{VALUE}}; --swiper-navigation-color: {{VALUE}};',
+            ),
+        ) );
+
+        $this->add_control( 'arrow_bg_color', array(
+            'label'     => __( 'Arrow Background', 'otw-testimonials' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'selectors' => array(
+                '{{WRAPPER}} .swiper-button-prev, {{WRAPPER}} .swiper-button-next' => 'background-color: {{VALUE}};',
+            ),
+        ) );
+
+        $this->add_responsive_control( 'arrow_size', array(
+            'label'      => __( 'Arrow Icon Size', 'otw-testimonials' ),
+            'type'       => \Elementor\Controls_Manager::SLIDER,
+            'range'      => array( 'px' => array( 'min' => 8, 'max' => 40 ) ),
+            'selectors'  => array(
+                '{{WRAPPER}} .swiper-button-prev, {{WRAPPER}} .swiper-button-next' => '--swiper-navigation-size: {{SIZE}}px;',
+            ),
+        ) );
+
+        $this->add_responsive_control( 'arrow_button_size', array(
+            'label'      => __( 'Button Size', 'otw-testimonials' ),
+            'type'       => \Elementor\Controls_Manager::SLIDER,
+            'range'      => array( 'px' => array( 'min' => 24, 'max' => 80 ) ),
+            'selectors'  => array(
+                '{{WRAPPER}} .swiper-button-prev, {{WRAPPER}} .swiper-button-next' => 'width: {{SIZE}}px; height: {{SIZE}}px;',
+            ),
+        ) );
+
+        $this->add_responsive_control( 'arrow_border_radius', array(
+            'label'      => __( 'Border Radius', 'otw-testimonials' ),
+            'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+            'size_units' => array( 'px', '%' ),
+            'selectors'  => array(
+                '{{WRAPPER}} .swiper-button-prev, {{WRAPPER}} .swiper-button-next' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+            ),
+        ) );
+
+        $this->add_group_control( \Elementor\Group_Control_Box_Shadow::get_type(), array(
+            'name'     => 'arrow_shadow',
+            'selector' => '{{WRAPPER}} .swiper-button-prev, {{WRAPPER}} .swiper-button-next',
+        ) );
+
+        $this->add_control( 'heading_dots', array(
+            'label'     => __( 'Pagination Dots', 'otw-testimonials' ),
+            'type'      => \Elementor\Controls_Manager::HEADING,
+            'separator' => 'before',
+        ) );
+
+        $this->add_control( 'dot_color', array(
+            'label'     => __( 'Dot Color', 'otw-testimonials' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'selectors' => array(
+                '{{WRAPPER}} .swiper-pagination-bullet' => 'background-color: {{VALUE}};',
+            ),
+        ) );
+
+        $this->add_control( 'dot_active_color', array(
+            'label'     => __( 'Active Dot Color', 'otw-testimonials' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'selectors' => array(
+                '{{WRAPPER}} .swiper-pagination-bullet-active' => 'background-color: {{VALUE}};',
+            ),
+        ) );
+
+        $this->add_responsive_control( 'dot_size', array(
+            'label'      => __( 'Dot Size', 'otw-testimonials' ),
+            'type'       => \Elementor\Controls_Manager::SLIDER,
+            'range'      => array( 'px' => array( 'min' => 4, 'max' => 20 ) ),
+            'selectors'  => array(
+                '{{WRAPPER}} .swiper-pagination-bullet' => 'width: {{SIZE}}px; height: {{SIZE}}px;',
+            ),
+        ) );
+
+        $this->end_controls_section();
+    }
+
+    private function register_style_gallery_controls() {
+        $this->start_controls_section( 'section_style_gallery', array(
+            'label' => __( 'Gallery Images', 'otw-testimonials' ),
+            'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+        ) );
+
+        $this->add_responsive_control( 'gallery_border_radius', array(
+            'label'      => __( 'Border Radius', 'otw-testimonials' ),
+            'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+            'size_units' => array( 'px', '%' ),
+            'selectors'  => array(
+                '{{WRAPPER}} .otw-gallery__item' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+            ),
+        ) );
+
+        $this->add_responsive_control( 'gallery_gap', array(
+            'label'      => __( 'Gap Between Images', 'otw-testimonials' ),
+            'type'       => \Elementor\Controls_Manager::SLIDER,
+            'range'      => array( 'px' => array( 'min' => 0, 'max' => 24 ) ),
+            'selectors'  => array(
+                '{{WRAPPER}} .otw-card__gallery' => 'gap: {{SIZE}}px;',
+            ),
+        ) );
+
+        $this->add_group_control( \Elementor\Group_Control_Border::get_type(), array(
+            'name'     => 'gallery_border',
+            'selector' => '{{WRAPPER}} .otw-gallery__item',
+        ) );
+
+        $this->end_controls_section();
+    }
+
     protected function render() {
         $settings = $this->get_settings_for_display();
 
@@ -399,16 +779,19 @@ class OTW_Testimonials_Elementor_Widget extends \Elementor\Widget_Base {
             return;
         }
 
-        $this->enqueue_frontend_assets( $settings['layout'] );
+        $read_more_text = ! empty( $settings['read_more_text'] ) ? $settings['read_more_text'] : __( 'Read more', 'otw-testimonials' );
+        $this->enqueue_frontend_assets( $settings['layout'], $read_more_text );
 
         $columns        = ! empty( $settings['columns'] ) ? $settings['columns'] : 3;
+        $columns_laptop = isset( $settings['columns_laptop'] ) ? $settings['columns_laptop'] : ( isset( $settings['columns__laptop'] ) ? $settings['columns__laptop'] : $columns );
         $columns_tablet = isset( $settings['columns_tablet'] ) ? $settings['columns_tablet'] : ( isset( $settings['columns__tablet'] ) ? $settings['columns__tablet'] : 2 );
         $columns_mobile = isset( $settings['columns_mobile'] ) ? $settings['columns_mobile'] : ( isset( $settings['columns__mobile'] ) ? $settings['columns__mobile'] : 1 );
         $gap            = isset( $settings['gap']['size'] ) ? $settings['gap']['size'] : 24;
 
         $wrapper_style = sprintf(
-            '--otw-cols:%d;--otw-cols-tablet:%d;--otw-cols-mobile:%d;--otw-gap:%dpx;',
+            '--otw-cols:%d;--otw-cols-laptop:%d;--otw-cols-tablet:%d;--otw-cols-mobile:%d;--otw-gap:%dpx;',
             $columns,
+            $columns_laptop,
             $columns_tablet,
             $columns_mobile,
             $gap
@@ -418,8 +801,9 @@ class OTW_Testimonials_Elementor_Widget extends \Elementor\Widget_Base {
 
         if ( $layout === 'carousel' ) {
             $data_attrs = sprintf(
-                'data-cols="%d" data-cols-tablet="%d" data-cols-mobile="%d" data-gap="%d" data-autoplay="%s" data-autoplay-speed="%d" data-loop="%s" data-arrows="%s" data-dots="%s"',
+                'data-cols="%d" data-cols-laptop="%d" data-cols-tablet="%d" data-cols-mobile="%d" data-gap="%d" data-autoplay="%s" data-autoplay-speed="%d" data-loop="%s" data-arrows="%s" data-dots="%s"',
                 $columns,
+                $columns_laptop,
                 $columns_tablet,
                 $columns_mobile,
                 $gap,
@@ -450,6 +834,19 @@ class OTW_Testimonials_Elementor_Widget extends \Elementor\Widget_Base {
             </div>
             <?php
         } else {
+            $limit          = absint( $settings['limit'] );
+            $shown          = count( $testimonials );
+            $show_load_more = ! empty( $settings['show_load_more'] ) && $settings['show_load_more'] === 'yes';
+            $load_more_text = ! empty( $settings['load_more_text'] ) ? sanitize_text_field( $settings['load_more_text'] ) : __( 'Load More', 'otw-testimonials' );
+
+            $has_more = false;
+            if ( $show_load_more && $limit > 0 && $shown >= $limit ) {
+                $has_more = $shown < OTW_Testimonials_DB::get_count( array(
+                    'status'          => 'publish',
+                    'platform'        => $settings['platform'] !== 'all' ? $settings['platform'] : '',
+                    'related_post_id' => $related_post_id,
+                ) );
+            }
             ?>
             <div class="otw-testimonials-wrapper" style="<?php echo esc_attr( $wrapper_style ); ?>">
                 <div class="otw-testimonials-grid">
@@ -457,6 +854,20 @@ class OTW_Testimonials_Elementor_Widget extends \Elementor\Widget_Base {
                         <?php $this->render_card( $testimonial ); ?>
                     <?php endforeach; ?>
                 </div>
+                <?php if ( $has_more ) : ?>
+                <div class="otw-load-more-wrap">
+                    <button type="button" class="otw-load-more-btn"
+                        data-limit="<?php echo esc_attr( $limit ); ?>"
+                        data-offset="<?php echo esc_attr( $shown ); ?>"
+                        data-platform="<?php echo esc_attr( $settings['platform'] ); ?>"
+                        data-orderby="<?php echo esc_attr( $db_orderby ); ?>"
+                        data-order="<?php echo esc_attr( $settings['order'] ); ?>"
+                        data-related="<?php echo esc_attr( $related_post_id ); ?>"
+                        data-nonce="<?php echo esc_attr( wp_create_nonce( 'otw_load_more' ) ); ?>">
+                        <?php echo esc_html( $load_more_text ); ?>
+                    </button>
+                </div>
+                <?php endif; ?>
             </div>
             <?php
         }
@@ -470,18 +881,30 @@ class OTW_Testimonials_Elementor_Widget extends \Elementor\Widget_Base {
         $template = OTW_TESTIMONIALS_DIR . 'templates/card-' . $platform . '.php';
 
         if ( file_exists( $template ) ) {
+            $testimonial = (object) (array) $testimonial;
+            $testimonial->description = wpautop( $testimonial->description );
             include $template;
         }
     }
 
-    private function enqueue_frontend_assets( $layout ) {
+    private function enqueue_frontend_assets( $layout, $read_more_text = 'Read more' ) {
         wp_enqueue_style( 'otw-testimonials-frontend' );
+        wp_enqueue_style( 'otw-glightbox' );
+        wp_enqueue_script( 'otw-glightbox' );
+        wp_enqueue_script( 'otw-testimonials-frontend' );
+
+        wp_localize_script( 'otw-testimonials-frontend', 'otwFrontend', array(
+            'ajaxurl'      => admin_url( 'admin-ajax.php' ),
+            'readMoreText' => sanitize_text_field( $read_more_text ),
+        ) );
 
         if ( $layout === 'carousel' ) {
-            wp_enqueue_style( 'swiper' );
-            wp_enqueue_script( 'swiper' );
+            // Elementor always has its own Swiper registered — use it to avoid conflicts.
+            // Fall back to our bundle only if nothing else provides Swiper.
+            $swiper_style  = wp_style_is( 'swiper', 'registered' )  ? 'swiper'     : 'otw-swiper';
+            $swiper_script = wp_script_is( 'swiper', 'registered' ) ? 'swiper'     : 'otw-swiper';
+            wp_enqueue_style( $swiper_style );
+            wp_enqueue_script( $swiper_script );
         }
-
-        wp_enqueue_script( 'otw-testimonials-frontend' );
     }
 }

@@ -18,7 +18,10 @@
                     768: {
                         slidesPerView: parseInt(el.dataset.colsTablet, 10) || 2,
                     },
-                    1025: {
+                    1200: {
+                        slidesPerView: parseInt(el.dataset.colsLaptop, 10) || parseInt(el.dataset.cols, 10) || 3,
+                    },
+                    1400: {
                         slidesPerView: parseInt(el.dataset.cols, 10) || 3,
                     },
                 },
@@ -127,7 +130,7 @@
                 var btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'otw-read-more-btn';
-                btn.textContent = 'Read more';
+                btn.textContent = (typeof otwFrontend !== 'undefined' && otwFrontend.readMoreText) ? otwFrontend.readMoreText : 'Read more';
                 btn.addEventListener('click', function () { openModal(el); });
                 el.parentNode.insertBefore(btn, el.nextSibling);
             } else {
@@ -136,10 +139,70 @@
         });
     }
 
+    /* ── Gallery / Lightbox ────────────────────────────────────── */
+    var lightboxInstance = null;
+
+    function initGallery() {
+        if ( !window.GLightbox ) return;
+        if ( !document.querySelector('.otw-gallery__item') ) return;
+        if ( lightboxInstance ) lightboxInstance.destroy();
+        lightboxInstance = GLightbox({ selector: '.otw-gallery__item' });
+    }
+
+    /* ── Load More ─────────────────────────────────────────────── */
+    function initLoadMore() {
+        document.querySelectorAll('.otw-load-more-btn').forEach(function (btn) {
+            if (btn._otwLoadMoreInit) return;
+            btn._otwLoadMoreInit = true;
+
+            btn.addEventListener('click', function () {
+                var self   = this;
+                var grid   = self.closest('.otw-testimonials-wrapper').querySelector('.otw-testimonials-grid');
+                if (!grid) return;
+
+                var originalText = self.textContent;
+                self.disabled    = true;
+                self.textContent = self.dataset.loading || 'Loading\u2026';
+
+                var body = new FormData();
+                body.append('action',   'otw_load_more');
+                body.append('nonce',    self.dataset.nonce);
+                body.append('limit',    self.dataset.limit);
+                body.append('offset',   self.dataset.offset);
+                body.append('platform', self.dataset.platform);
+                body.append('orderby',  self.dataset.orderby);
+                body.append('order',    self.dataset.order);
+                body.append('related',  self.dataset.related);
+
+                fetch(otwFrontend.ajaxurl, { method: 'POST', body: body })
+                    .then(function (r) { return r.json(); })
+                    .then(function (response) {
+                        if (!response.success) { self.disabled = false; self.textContent = originalText; return; }
+
+                        grid.insertAdjacentHTML('beforeend', response.data.html);
+                        self.dataset.offset = response.data.next_offset;
+
+                        initReadMore();
+                        initGallery();
+
+                        if (!response.data.has_more) {
+                            self.closest('.otw-load-more-wrap').remove();
+                        } else {
+                            self.disabled    = false;
+                            self.textContent = originalText;
+                        }
+                    })
+                    .catch(function () { self.disabled = false; self.textContent = originalText; });
+            });
+        });
+    }
+
     /* ── Init ──────────────────────────────────────────────────── */
     function init() {
         initCarousels();
         initReadMore();
+        initGallery();
+        initLoadMore();
     }
 
     if (document.readyState === 'loading') {

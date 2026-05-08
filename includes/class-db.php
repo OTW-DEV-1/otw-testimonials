@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -85,6 +86,9 @@ class OTW_Testimonials_DB {
         $sanitized = self::sanitize_data( $data );
         $sanitized['created_at'] = current_time( 'mysql' );
         $sanitized['updated_at'] = current_time( 'mysql' );
+        if ( empty( $sanitized['testimonial_date'] ) ) {
+            $sanitized['testimonial_date'] = current_time( 'Y-m-d' );
+        }
 
         $wpdb->insert( self::table_name(), $sanitized, self::get_formats( $sanitized ) );
 
@@ -133,6 +137,11 @@ class OTW_Testimonials_DB {
             $values[] = $args['platform'];
         }
 
+        if ( ! empty( $args['related_post_id'] ) ) {
+            $where[]  = 'related_post_id = %d';
+            $values[] = absint( $args['related_post_id'] );
+        }
+
         $where_sql = ! empty( $where ) ? 'WHERE ' . implode( ' AND ', $where ) : '';
 
         $sql = "SELECT COUNT(*) FROM {$table} {$where_sql}";
@@ -171,7 +180,7 @@ class OTW_Testimonials_DB {
                     'name'  => $t->title,
                 ),
                 'reviewBody'    => wp_strip_all_tags( $t->description ),
-                'datePublished' => date( 'Y-m-d', strtotime( $t->created_at ) ),
+                'datePublished' => ! empty( $t->testimonial_date ) ? $t->testimonial_date : date( 'Y-m-d', strtotime( $t->created_at ) ),
             );
 
             $reviews[] = $review;
@@ -234,7 +243,7 @@ class OTW_Testimonials_DB {
             $sanitized['rating'] = max( 1, min( 5, absint( $data['rating'] ) ) );
         }
         if ( isset( $data['platform'] ) ) {
-            $allowed = array( 'google', 'facebook', 'trustpilot', 'blank' );
+            $allowed = array( 'google', 'facebook', 'trustpilot', 'instagram', 'blank' );
             $sanitized['platform'] = in_array( $data['platform'], $allowed, true ) ? $data['platform'] : 'google';
         }
         if ( isset( $data['sort_order'] ) ) {
@@ -247,13 +256,24 @@ class OTW_Testimonials_DB {
         if ( isset( $data['related_post_id'] ) ) {
             $sanitized['related_post_id'] = absint( $data['related_post_id'] );
         }
+        if ( isset( $data['gallery_ids'] ) ) {
+            $ids = is_array( $data['gallery_ids'] )
+                ? $data['gallery_ids']
+                : json_decode( $data['gallery_ids'], true );
+            $ids = is_array( $ids ) ? array_values( array_filter( array_map( 'absint', $ids ) ) ) : array();
+            $sanitized['gallery_ids'] = $ids ? wp_json_encode( $ids ) : '';
+        }
+        if ( isset( $data['testimonial_date'] ) ) {
+            $date = sanitize_text_field( $data['testimonial_date'] );
+            $sanitized['testimonial_date'] = ( $date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) ) ? $date : null;
+        }
 
         return $sanitized;
     }
 
     private static function get_formats( $data ) {
         $formats    = array();
-        $int_fields = array( 'image_id', 'rating', 'sort_order', 'related_post_id' );
+        $int_fields = array( 'image_id', 'rating', 'sort_order', 'related_post_id' ); // gallery_ids is %s (TEXT)
 
         foreach ( array_keys( $data ) as $key ) {
             $formats[] = in_array( $key, $int_fields, true ) ? '%d' : '%s';

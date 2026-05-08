@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -79,7 +80,11 @@ class OTW_Testimonials_List_Table extends WP_List_Table {
 
     public function column_image( $item ) {
         if ( $item->image_id ) {
-            $img = wp_get_attachment_image( $item->image_id, array( 40, 40 ), false, array( 'style' => 'border-radius:50%;object-fit:cover;' ) );
+            $img = wp_get_attachment_image( $item->image_id, array( 40, 40 ), false, array(
+                'style'  => 'border-radius:50%;object-fit:cover;display:block;',
+                'width'  => '40',
+                'height' => '40',
+            ) );
             if ( $img ) {
                 return $img;
             }
@@ -129,6 +134,7 @@ class OTW_Testimonials_List_Table extends WP_List_Table {
             'google'     => '🔍 Google',
             'facebook'   => '📘 Facebook',
             'trustpilot' => '⭐ Trustpilot',
+            'instagram'  => '📸 Instagram',
             'blank'      => '💬 Other',
         );
         return esc_html( $platforms[ $item->platform ] ?? $item->platform );
