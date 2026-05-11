@@ -30,7 +30,7 @@ $display_date = ! empty( $testimonial->testimonial_date ) ? $testimonial->testim
     </div>
 
     <div class="otw-card__content">
-        <div class="otw-content-body"><?php echo wp_kses_post( $testimonial->description ); ?></div>
+        <div class="otw-content-body" dir="auto"><?php echo wp_kses_post( $testimonial->description ); ?></div>
     </div>
 
     <?php

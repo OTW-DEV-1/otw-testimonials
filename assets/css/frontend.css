@@ -540,6 +540,44 @@ body.otw-modal-open {
     cursor: default;
 }
 
+/* RTL Support
+   ========================================================================== */
+.otw-content-body {
+    unicode-bidi: plaintext;
+}
+
+.otw-content-body p {
+    unicode-bidi: plaintext;
+}
+
+[dir="rtl"] .otw-card__author-info {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .otw-card__author-meta {
+    text-align: right;
+}
+
+[dir="rtl"] .otw-card__header {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .otw-card__rating {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .otw-card__recommendation {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .otw-modal__author {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .otw-modal__author .otw-card__author-meta {
+    text-align: right;
+}
+
 @keyframes otwFadeIn {
     from { opacity: 0; }
     to   { opacity: 1; }
